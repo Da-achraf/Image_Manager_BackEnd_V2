@@ -37,6 +37,26 @@ const Image = dbInstance.sequelize.define('Image',
         height:{
             type: DataTypes.INTEGER,
             allowNull: false,
+        },
+        histogram: {
+            type: DataTypes.JSON,
+            allowNull: false
+        },
+        dominantColors: {
+            type: DataTypes.JSON,
+            allowNull: false
+        },
+        moments: {
+            type: DataTypes.JSON,
+            allowNull: true
+        },
+        gaborFilterValues: {
+            type: DataTypes.JSON,
+            allowNull: true
+        },
+        tamura: {
+            type: DataTypes.JSON,
+            allowNull: true
         }
     },
     

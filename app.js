@@ -14,6 +14,12 @@ app.use(cors(CorsOptions))
 app.use('/api/auth/*', Authorization.authMiddleware);
 app.post('/api/auth/image', fileUpload())
 
+// app.get('/test', async (req, res) => {
+//     const imageService = new ImageService()
+//     // const data = await imageService.calculateHistogram("https://res.cloudinary.com/dzf7sq2zr/image/upload/v1701365455/mkjh42ckunk7rz04hmbo.jpg")
+//     const data = await imageService.calculateDominantColors("https://res.cloudinary.com/dzf7sq2zr/image/upload/v1701365455/mkjh42ckunk7rz04hmbo.jpg")
+//     res.send(data)
+// })
 
 await dbInstance.connect()
 

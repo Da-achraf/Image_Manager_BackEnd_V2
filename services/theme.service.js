@@ -1,5 +1,6 @@
 import {Theme, User} from "../model/index.js";
 import {ERROR_CONSTANTS} from "../constants/index.js";
+import {ImageService} from "./image.service.js";
 
 class ThemeService {
     async getOneById(id){
@@ -43,11 +44,16 @@ class ThemeService {
     }
 
     async deleteOne(themeId){
+        const imageService = new ImageService()
         if (!themeId)
             throw new Error(ERROR_CONSTANTS.BAD_ARGUMENTS)
         try {
             const themeToBeDeleted = await this.getOneById(themeId)
+            const themeImages = await imageService.getImagesByThemeId(themeId)
             await Theme.destroy({where: {id: themeId}});
+            for (const image of themeImages) {
+                await imageService.deleteImageFromCloudinary(image.publicId);
+            }
             return themeToBeDeleted
         }catch (error){
             throw error

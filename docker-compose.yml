@@ -1,0 +1,33 @@
+version: "3.7"
+name: nodeapp
+services:
+  mysqldatabase:
+    image: mysql
+    container_name: mysqldatabase
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: 'images'
+      MYSQL_ROOT_PASSWORD: '12345'
+    volumes:
+      - data:/var/lib/mysql
+    networks:
+      - myprivatenet
+  backend:
+    container_name: backend
+    image: nodeapp:latest
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysqldatabase
+    restart: on-failure
+    networks:
+      - myprivatenet
+
+volumes:
+  data: {}
+
+networks:
+  myprivatenet:
+    name: myprivatenet
+    driver: bridge

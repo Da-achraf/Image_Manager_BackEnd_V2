@@ -1,6 +1,11 @@
 import { Image, Theme } from "../model/index.js";
-import { ERROR_CONSTANTS } from "../constants/index.js";
+import { ERROR_CONSTANTS, FLASK_API } from "../constants/index.js";
 import { Cloudinary } from "../config/index.js"
+import {ImageUtilities} from "../utilities/index.js";
+import axios from "axios";
+import {ImageCharacteristicService} from "./image-characteritic.service.js";
+
+const characteristics =  new ImageCharacteristicService()
 
 class ImageService {
     async getOneById(id){
@@ -17,6 +22,11 @@ class ImageService {
                 size: foundImage.size,
                 width: foundImage.width,
                 height: foundImage.height,
+                histogram: foundImage.histogram,
+                dominantColors: foundImage.dominantColors,
+                moments: foundImage.moments,
+                gaborFilterValues: foundImage.gaborFilterValues,
+                tamura: foundImage.tamura,
                 ThemeId: foundImage.ThemeId,
                 createdAt: foundImage.createdAt
             }
@@ -42,12 +52,52 @@ class ImageService {
                 size: image.size,
                 width: image.width,
                 height: image.height,
+                histogram: image.histogram,
+                dominantColors: image.dominantColors,
+                moments: image.moments,
+                gaborFilterValues: image.gaborFilterValues,
+                tamura: image.tamura,
                 ThemeId: image.ThemeId,
                 createdAt: image.createdAt
             }))
         }
         return []
     }
+
+    async saveImage(image){
+        console.log('Decoding image...')
+        let dataUri = await ImageUtilities.decode(image)
+        console.log('Uploading to cloudinary...')
+        const asset = await this.uploadImageToCloudinary(dataUri)
+        console.log('Calculating histogram...')
+        const histogram = await characteristics.histogram(asset.secure_url)
+        console.log('Calculating dominant colors...')
+        const dominantColors = await characteristics.dominantColors(asset.secure_url)
+        console.log('Calculating moments...')
+        // const moments = await characteristics.moments(asset.secure_url)
+        console.log('Calculating gaborFilterValues...')
+        // const gaborFilterValues = await characteristics.gaborFilter(asset.secure_url)
+        console.log('Calculating tamura...')
+        // const tamura = await characteristics.tamura(asset.secure_url)
+        const imageToSave = {
+            name: image.name,
+            url: asset.secure_url,
+            publicId: asset.public_id,
+            mimeType: image.mimetype,
+            width: asset.width,
+            height: asset.height,
+            size: image.size,
+            histogram,
+            dominantColors,
+            // moments,
+            // tamura,
+            // gaborFilterValues,
+            ThemeId: image.themeId
+        }
+        console.log('Saving to database...')
+        return await this.saveOne(imageToSave)
+    }
+
 
     async saveOne(image){
         const validation =  image.name && image.url && image.publicId && image.size &&
@@ -66,6 +116,11 @@ class ImageService {
                 size: savedImage.dataValues.size,
                 width: savedImage.dataValues.width,
                 height: savedImage.dataValues.height,
+                histogram: savedImage.histogram,
+                dominantColors: savedImage.dominantColors,
+                // moments: savedImage.moments,
+                // gaborFilterValues: savedImage.gaborFilterValues,
+                // tamura: savedImage.tamura,
                 ThemeId: savedImage.dataValues.ThemeId,
                 createdAt: savedImage.dataValues.createdAt
             }
@@ -75,8 +130,8 @@ class ImageService {
         }
     }
 
-    async uploadImage(dataUri){
-        return await Cloudinary.uploader.upload(dataUri)
+    async uploadImageToCloudinary(dataUri){
+        return await Cloudinary.uploader.upload(dataUri, {timeout: 200000})
     }
 
     async deleteImageFromCloudinary(imagePublicId){
