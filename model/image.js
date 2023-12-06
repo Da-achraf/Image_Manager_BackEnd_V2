@@ -48,15 +48,15 @@ const Image = dbInstance.sequelize.define('Image',
         },
         moments: {
             type: DataTypes.JSON,
-            allowNull: true
+            allowNull: false
         },
         gaborFilterValues: {
             type: DataTypes.JSON,
-            allowNull: true
+            allowNull: false
         },
         tamura: {
             type: DataTypes.JSON,
-            allowNull: true
+            allowNull: false
         }
     },
     

@@ -1,5 +1,5 @@
 version: "3.7"
-name: nodeapp
+name: app
 services:
   mysqldatabase:
     image: mysql
@@ -13,13 +13,21 @@ services:
       - data:/var/lib/mysql
     networks:
       - myprivatenet
-  backend:
-    container_name: backend
-    image: nodeapp:latest
+  nodeapp:
+    container_name: nodeapp
+    image: images-backend
     ports:
       - "5000:5000"
     depends_on:
       - mysqldatabase
+    restart: on-failure
+    networks:
+      - myprivatenet
+  angularapp:
+    container_name: angularapp
+    image: images-frontend
+    ports:
+      - "80:80"
     restart: on-failure
     networks:
       - myprivatenet

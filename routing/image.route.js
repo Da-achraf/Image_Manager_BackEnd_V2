@@ -56,29 +56,17 @@ imageRouter.post('/', async (req, res) => {
                 images = req.files.images
             else
                 images.push(req.files.images)
-        let savedImages = []
-        for (let image of images) {
-            const testSavedImage = await imageService.saveImage({...image, themeId})
-            // let dataUri = await ImageUtilities.decode(image)
-            // const asset = await imageService.uploadImageToCloudinary(dataUri)
-            // const imageToSave = {
-            //     name: image.name,
-            //     url: asset.secure_url,
-            //     publicId: asset.public_id,
-            //     mimeType: image.mimetype,
-            //     width: asset.width,
-            //     height: asset.height,
-            //     size: image.size,
-            //     ThemeId: themeId
-            // }
-            // const savedImage = await imageService.saveOne(imageToSave)
-            savedImages.push(testSavedImage)
-        }
+        // Process images in parallel using Promise.all
+        const savedImagesPromises = images.map(async (image) => {
+            return await imageService.saveImage({ ...image, themeId });
+        });
+
+        // Wait for all promises to be resolved
+        const savedImages = await Promise.all(savedImagesPromises);
         return res.status(200).json({ status: 200, message: INFO_CONSTANTS.UPLOAD_SUCCESS, data: savedImages});
     }
     catch (e){
         console.log('erooooor: ', e)
-        // return res.status(500).json({ status: 500, message: 'Image upload to Cloudinary failed', data: null })
         return res.status(500).json({ status: 500, message: e.message, data: null })
     }
 })
@@ -108,3 +96,13 @@ imageRouter.delete('', async (req, res) => {
 export {
     imageRouter
 }
+
+
+
+
+
+// let savedImages = []
+// for (let image of images) {
+//     const testSavedImage = await imageService.saveImage({...image, themeId})
+//     savedImages.push(testSavedImage)
+// }

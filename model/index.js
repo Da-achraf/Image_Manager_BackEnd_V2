@@ -16,11 +16,9 @@ await Theme.belongsTo(User, {
     onDelete: 'CASCADE'
 });
 
-// { alter: true }
-await Image.sync({ alter: true })
-await Theme.sync()
-await User.sync();
-
+await User.sync({ alter: true });
+await Theme.sync({ alter: true });
+await Image.sync({ alter: true });
 
 export {
     User,

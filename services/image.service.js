@@ -65,20 +65,20 @@ class ImageService {
     }
 
     async saveImage(image){
-        console.log('Decoding image...')
+        console.log('Decoding image...' + image.name)
         let dataUri = await ImageUtilities.decode(image)
-        console.log('Uploading to cloudinary...')
+        console.log('Uploading to cloudinary...' + image.name)
         const asset = await this.uploadImageToCloudinary(dataUri)
-        console.log('Calculating histogram...')
+        console.log('Calculating histogram...' + image.name)
         const histogram = await characteristics.histogram(asset.secure_url)
-        console.log('Calculating dominant colors...')
+        console.log('Calculating dominant colors...' + image.name)
         const dominantColors = await characteristics.dominantColors(asset.secure_url)
         console.log('Calculating moments...')
-        // const moments = await characteristics.moments(asset.secure_url)
-        console.log('Calculating gaborFilterValues...')
-        // const gaborFilterValues = await characteristics.gaborFilter(asset.secure_url)
-        console.log('Calculating tamura...')
-        // const tamura = await characteristics.tamura(asset.secure_url)
+        const moments = await characteristics.moments(asset.secure_url)
+        console.log('Calculating gaborFilterValues...' + image.name)
+        const gaborFilterValues = await characteristics.gaborFilter(asset.secure_url)
+        console.log('Calculating tamura...' + image.name)
+        const tamura = await characteristics.tamura(asset.secure_url)
         const imageToSave = {
             name: image.name,
             url: asset.secure_url,
@@ -89,12 +89,12 @@ class ImageService {
             size: image.size,
             histogram,
             dominantColors,
-            // moments,
-            // tamura,
-            // gaborFilterValues,
+            moments,
+            tamura,
+            gaborFilterValues,
             ThemeId: image.themeId
         }
-        console.log('Saving to database...')
+        console.log('Saving to database...' + image.name)
         return await this.saveOne(imageToSave)
     }
 
@@ -118,9 +118,9 @@ class ImageService {
                 height: savedImage.dataValues.height,
                 histogram: savedImage.histogram,
                 dominantColors: savedImage.dominantColors,
-                // moments: savedImage.moments,
-                // gaborFilterValues: savedImage.gaborFilterValues,
-                // tamura: savedImage.tamura,
+                moments: savedImage.moments,
+                gaborFilterValues: savedImage.gaborFilterValues,
+                tamura: savedImage.tamura,
                 ThemeId: savedImage.dataValues.ThemeId,
                 createdAt: savedImage.dataValues.createdAt
             }
